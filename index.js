@@ -1,4 +1,5 @@
 import axios from "axios";
+import BigNumber from "bignumber.js";
 
 // Temporarily store the API key here,
 // but be sure to load the api key using ENVIRONMENT
@@ -57,15 +58,37 @@ const loadTransactions = async (
 };
 
 // Fetch Transactions
-let tokenHash = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+let tokenHash = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
 let transactionToCheck =
   "0x8b37e381a837daf8f1db01a6c76d5f153a7cde048293236448dba2aedf294af5";
 
 loadTransactions(tokenHash).then((transactions) => {
+  const txn = transactions[0]
+
+  const generateBigUnit = (tokenDecimalInt) => {
+    // string
+    const unit = (new Array(tokenDecimalInt-1)).fill(0).join('')
+    const smallestUnitString = `0.${unit}1`
+    return new BigNumber(smallestUnitString)
+  }
+
+  const tokenDecimalInt = parseInt(txn.tokenDecimal)
+  const bigValue = new BigNumber(txn.value)
+
+  const bigTokenDecimal = generateBigUnit(tokenDecimalInt)
+  const bigHumanValue = bigValue.dividedBy((new BigNumber(1)).dividedBy(bigTokenDecimal))
+
+  console.log('transactions', txn)
+  console.log('bigTokenDecimal', bigTokenDecimal.decimalPlaces(tokenDecimalInt).toFixed())
+  console.log('bigValue', bigValue.decimalPlaces(tokenDecimalInt).toFixed())
+  console.log('transactions.amount', bigHumanValue.decimalPlaces(tokenDecimalInt).toFixed())
+
   transactions.forEach((t) => {
     if (t.hash === transactionToCheck) {
-      console.log(t);
+      // console.log(t);
       return;
     }
   });
 });
+
+1000000000000000000
